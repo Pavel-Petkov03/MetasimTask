@@ -44,5 +44,8 @@ class CleanText:
 
 
 if __name__ == "__main__":
-    text_cleaner = CleanText("../src/example.txt")
-    text_cleaner.clean()
+    try:
+        text_cleaner = CleanText("../src/examples.txt")
+        text_cleaner.clean()
+    except Exception as error:
+        print(error)
