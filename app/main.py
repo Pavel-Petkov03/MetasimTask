@@ -3,7 +3,7 @@ from langchain.chains.llm import LLMChain
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from dotenv import load_dotenv, dotenv_values
-from pydantic import BaseModel
+from app.schemas import TextRequest, ChatRequest
 
 load_dotenv(verbose=True)
 env_config = dotenv_values(".env")
@@ -14,14 +14,6 @@ llm = ChatOpenAI(
     max_tokens = 1000,
     temperature = 0.5,
 )
-
-class TextRequest(BaseModel):
-    text: str
-
-class ChatRequest(BaseModel):
-    text: str
-    memory: list[str]
-
 
 @app.post("/clean_text")
 async def clean_text(text_request : TextRequest):
@@ -37,7 +29,8 @@ async def clean_text(text_request : TextRequest):
     props = {
         "input_text": text_request.text
     }
-    return {"cleared_text": await chain.ainvoke(props)["content"]}
+    result = await chain.ainvoke(props)
+    return {"cleared_text":  result.content}
 
 @app.post("/chat")
 async def chat(chat_request: ChatRequest):
@@ -52,7 +45,8 @@ async def chat(chat_request: ChatRequest):
     props = {
         "memory": chat_request.memory,
     }
-    return {"response": await chain.ainvoke(props)["content"]}
+    result = await chain.ainvoke(props)
+    return {"response": result["content"]}
 
 
 if __name__ == "__main__":
