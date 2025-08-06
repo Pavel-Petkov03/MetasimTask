@@ -4,7 +4,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import TextLoader
 API_URL = "http://localhost:8000/"
 
-class CleanText:
+class TextCleaner:
     def __init__(self, filename, result_filename="output.txt"):
         self.filename = filename
         self.result_filename = result_filename
@@ -45,7 +45,7 @@ class CleanText:
 
 if __name__ == "__main__":
     try:
-        text_cleaner = CleanText("../src/examples.txt")
+        text_cleaner = TextCleaner("../src/examples.txt")
         text_cleaner.clean()
     except Exception as error:
         print(error)
