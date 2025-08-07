@@ -13,7 +13,7 @@ class TextCleaner:
         self.splitter = RecursiveCharacterTextSplitter(
             chunk_size=LLM_CHUNK_SIZE,
             chunk_overlap=LLM_CHUNK_OVERLAP,
-            separators=["\n\n", "\n", "\. ", " ", ""]
+            separators=["\n\n", "\n", " ", ""]
         )
 
     def clean(self) -> None:
