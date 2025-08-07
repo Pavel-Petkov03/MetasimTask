@@ -3,7 +3,7 @@ from langchain.chains.llm import LLMChain
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from dotenv import load_dotenv, dotenv_values
-from app.schemas import TextRequest, ChatRequest
+from app.schemas import TextRequest, ChatRequest, MemoryOwnerEnum
 
 load_dotenv(verbose=True)
 env_config = dotenv_values(".env")
@@ -32,21 +32,34 @@ async def clean_text(text_request : TextRequest):
     result = await chain.ainvoke(props)
     return {"cleared_text":  result.content}
 
+
 @app.post("/chat")
 async def chat(chat_request: ChatRequest):
+    buyer_prompt = """
+    You are a skeptical buyer currently evaluating some product
+    - The product will be passed in the first prompt in the format `product:{product}`
+    - You must answer in the first prompt in the format `Hi. I am interested in the product: {product}. Tell me why is it good`
+    - Be polite but critically examine all claims
+    - Ask probing questions about price, quality, and usefulness
+    - Never accept immediately without justification
+    - End conversation if seller says "Bye"
+    """
 
     prompt = ChatPromptTemplate.from_messages([
-        ("system", "You are a skeptical buyer. Be critical for the product but polite at the same time."),
-        *[("human", message) for message in chat_request.memory],
-        ("human", chat_request.text),
-        ("assistant", "{memory}")
+        ("system", buyer_prompt),
+        *[("human", message.text) for message in chat_request.memory if message.role == MemoryOwnerEnum.HUMAN],
+        *[("assistant", message.text) for message in chat_request.memory if message.role == MemoryOwnerEnum.AI],
+        ("human", chat_request.current_message),
     ])
+
     chain = LLMChain(llm=llm, prompt=prompt)
     props = {
-        "memory": chat_request.memory,
+        "product" : chat_request.product
     }
     result = await chain.ainvoke(props)
-    return {"response": result["content"]}
+    return {
+        "answer": result["text"]
+    }
 
 
 if __name__ == "__main__":
