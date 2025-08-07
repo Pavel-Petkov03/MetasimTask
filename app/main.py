@@ -1,16 +1,17 @@
+import os
+
 from fastapi import FastAPI
 from langchain.chains.llm import LLMChain
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
-from dotenv import load_dotenv, dotenv_values
+from dotenv import load_dotenv
 from app.schemas import TextRequest, ChatRequest, MemoryOwnerEnum
 
 load_dotenv(verbose=True)
-env_config = dotenv_values(".env")
 app = FastAPI()
 llm = ChatOpenAI(
     model="gpt-3.5-turbo",
-    api_key= env_config["API_KEY"],
+    api_key= os.environ["API_KEY"],
     max_tokens = 1000,
     temperature = 0.5,
 )
@@ -42,7 +43,6 @@ async def chat(chat_request: ChatRequest):
     - Be polite but critically examine all claims
     - Ask probing questions about price, quality, and usefulness
     - Never accept immediately without justification
-    - End conversation if seller says "Bye"
     """
 
     prompt = ChatPromptTemplate.from_messages([
