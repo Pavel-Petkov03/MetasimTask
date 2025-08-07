@@ -12,7 +12,8 @@ class TextCleaner:
         self.result_filename = result_filename
         self.splitter = RecursiveCharacterTextSplitter(
             chunk_size=LLM_CHUNK_SIZE,
-            chunk_overlap=LLM_CHUNK_OVERLAP
+            chunk_overlap=LLM_CHUNK_OVERLAP,
+            separators=["\n\n", "\n", "\. ", " ", ""]
         )
 
     def clean(self) -> None:
