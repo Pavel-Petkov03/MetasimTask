@@ -3,7 +3,7 @@ import requests
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import TextLoader
-from scripts.constants import API_URL
+from scripts.constants import API_URL, LLM_CHUNK_SIZE, LLM_CHUNK_OVERLAP
 
 
 class TextCleaner:
@@ -11,8 +11,8 @@ class TextCleaner:
         self.filename = filename
         self.result_filename = result_filename
         self.splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000,
-            chunk_overlap=200
+            chunk_size=LLM_CHUNK_SIZE,
+            chunk_overlap=LLM_CHUNK_OVERLAP
         )
 
     def clean(self) -> None:
@@ -54,8 +54,12 @@ if __name__ == "__main__":
     while not os.path.exists(filepath):
         print("File doesn't exist")
         filepath = input("Enter filename: ")
-    try:
+    output_path = input("Enter output filename[output.txt by default if left empty]")
+    if output_path:
+        text_cleaner = TextCleaner(filepath, output_path)
+    else:
         text_cleaner = TextCleaner(filepath)
+    try:
         text_cleaner.clean()
     except Exception as error:
         print(error)
