@@ -1,1 +1,3 @@
 API_URL = "http://localhost:8000/"
+LLM_CHUNK_SIZE = 1000
+LLM_CHUNK_OVERLAP = 200
