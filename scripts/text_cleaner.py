@@ -54,7 +54,7 @@ def main():
     filename = input("Enter filename: ")
     while not os.path.exists(TARGET_INPUT_FOLDER + filename):
         print("File doesn't exist")
-        filepath = input("Enter filename: ")
+        filename = input("Enter filename: ")
     final_filename = TARGET_INPUT_FOLDER + filename
     output_filename = input("Enter output filename[output.txt by default if left empty]")
     if output_filename:
