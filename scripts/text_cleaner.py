@@ -49,13 +49,14 @@ class TextCleaner:
         return documents
 
 
-if __name__ == "__main__":
+
+def main():
     filename = input("Enter filename: ")
     while not os.path.exists(TARGET_INPUT_FOLDER + filename):
         print("File doesn't exist")
         filepath = input("Enter filename: ")
     final_filename = TARGET_INPUT_FOLDER + filename
-    output_filename= input("Enter output filename[output.txt by default if left empty]")
+    output_filename = input("Enter output filename[output.txt by default if left empty]")
     if output_filename:
         text_cleaner = TextCleaner(final_filename, output_filename)
     else:
@@ -64,3 +65,7 @@ if __name__ == "__main__":
         text_cleaner.clean()
     except Exception as error:
         print(error)
+
+
+if __name__ == "__main__":
+    main()
