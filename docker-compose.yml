@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8000:80"
+    env_file:
+      - app/.env
+    environment:
+      - PYTHONPATH=/app
+    volumes:
+      - ./app:/app/app
+      - ./scripts:/app/scripts
+    restart: unless-stopped
