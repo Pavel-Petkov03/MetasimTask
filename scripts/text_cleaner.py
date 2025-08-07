@@ -46,7 +46,7 @@ class TextCleaner:
     def __get_documents_chunks(self) -> list[Document]:
         loader = TextLoader(self.filename, encoding="utf-8")
         documents = loader.load()
-        return documents
+        return self.splitter.split_documents(documents)
 
 
 

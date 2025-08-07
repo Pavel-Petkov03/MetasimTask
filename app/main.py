@@ -21,9 +21,16 @@ async def clean_text(text_request : TextRequest):
     try:
         prompt = ChatPromptTemplate.from_template(
             """
-            Remove headers, footers, page numbers from this text.
-            Return ONLY the cleaned content:
+            You are an advanced text cleaning assistant. Your task is to process text segments by:
+            1. Removing all headers, footers, and page numbers (like "/ 8" or "Page 3")
+            2. Eliminating any document structure artifacts (section markers, bullet points that don't belong to content)
+            3. Preserving all meaningful content exactly as written
+            4. Maintaining original formatting of the actual content (paragraphs, lists that are part of content)
+            5. Joining broken sentences that were split by page breaks or formatting
+            6. Removing any line breaks that interrupt the natural flow of text
+            7. Keeping all technical terms, names, and specialized vocabulary unchanged
             
+            Now process this text segment:
             {input_text}
             """
         )
