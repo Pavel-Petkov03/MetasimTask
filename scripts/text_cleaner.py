@@ -3,12 +3,12 @@ import requests
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import TextLoader
-from scripts.constants import API_URL, LLM_CHUNK_SIZE, LLM_CHUNK_OVERLAP
+from scripts.constants import API_URL, LLM_CHUNK_SIZE, LLM_CHUNK_OVERLAP, TARGET_OUTPUT_FOLDER, TARGET_INPUT_FOLDER
 
 
 class TextCleaner:
-    def __init__(self, filename, result_filename="output.txt"):
-        self.filename = filename
+    def __init__(self, file, result_filename="output.txt"):
+        self.filename = file
         self.result_filename = result_filename
         self.splitter = RecursiveCharacterTextSplitter(
             chunk_size=LLM_CHUNK_SIZE,
@@ -40,7 +40,7 @@ class TextCleaner:
 
 
     def __save_to_result_file(self, text: str) -> None:
-        with open(self.result_filename, "w") as f:
+        with open(TARGET_OUTPUT_FOLDER + self.result_filename, "w") as f:
             f.write(text)
 
     def __get_documents_chunks(self) -> list[Document]:
@@ -50,15 +50,16 @@ class TextCleaner:
 
 
 if __name__ == "__main__":
-    filepath = input("Enter filename: ")
-    while not os.path.exists(filepath):
+    filename = input("Enter filename: ")
+    while not os.path.exists(TARGET_INPUT_FOLDER + filename):
         print("File doesn't exist")
         filepath = input("Enter filename: ")
-    output_path = input("Enter output filename[output.txt by default if left empty]")
-    if output_path:
-        text_cleaner = TextCleaner(filepath, output_path)
+    final_filename = TARGET_INPUT_FOLDER + filename
+    output_filename= input("Enter output filename[output.txt by default if left empty]")
+    if output_filename:
+        text_cleaner = TextCleaner(final_filename, output_filename)
     else:
-        text_cleaner = TextCleaner(filepath)
+        text_cleaner = TextCleaner(final_filename)
     try:
         text_cleaner.clean()
     except Exception as error:
