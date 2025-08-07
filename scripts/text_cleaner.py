@@ -1,8 +1,10 @@
+import os
 import requests
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import TextLoader
-API_URL = "http://localhost:8000/"
+from scripts.constants import API_URL
+
 
 class TextCleaner:
     def __init__(self, filename, result_filename="output.txt"):
@@ -14,10 +16,12 @@ class TextCleaner:
         )
 
     def clean(self) -> None:
+        print("Cleaning...")
         document_chunks = self.__get_documents_chunks()
         processed_chunks = self.__process_chunks(document_chunks)
         merged_text = "".join(processed_chunks)
         self.__save_to_result_file(merged_text)
+        print(f"Result file: {self.result_filename}")
 
 
     @staticmethod
@@ -28,6 +32,8 @@ class TextCleaner:
                 f"{API_URL}/clean_text",
                 json={"text" : chunk.page_content},
             )
+            if response.status_code != 200:
+                raise RuntimeError(response.text)
             cleared_text = response.json()["cleared_text"]
             result.append(cleared_text)
         return result
@@ -44,8 +50,12 @@ class TextCleaner:
 
 
 if __name__ == "__main__":
+    filepath = input("Enter filename: ")
+    while not os.path.exists(filepath):
+        print("File doesn't exist")
+        filepath = input("Enter filename: ")
     try:
-        text_cleaner = TextCleaner("../src/examples.txt")
+        text_cleaner = TextCleaner(filepath)
         text_cleaner.clean()
     except Exception as error:
         print(error)
