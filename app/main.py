@@ -1,6 +1,6 @@
 import os
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from langchain.chains.llm import LLMChain
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
@@ -18,20 +18,23 @@ llm = ChatOpenAI(
 
 @app.post("/clean_text")
 async def clean_text(text_request : TextRequest):
-    prompt = ChatPromptTemplate.from_template(
-        """
-        Remove headers, footers, page numbers from this text.
-        Return ONLY the cleaned content:
-        
-        {input_text}
-        """
-    )
-    chain = prompt | llm
-    props = {
-        "input_text": text_request.text
-    }
-    result = await chain.ainvoke(props)
-    return {"cleared_text":  result.content}
+    try:
+        prompt = ChatPromptTemplate.from_template(
+            """
+            Remove headers, footers, page numbers from this text.
+            Return ONLY the cleaned content:
+            
+            {input_text}
+            """
+        )
+        chain = prompt | llm
+        props = {
+            "input_text": text_request.text
+        }
+        result = await chain.ainvoke(props)
+        return {"cleared_text":  result.content}
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=f"Text cleaning failed: {str(error)}")
 
 
 @app.post("/chat")
@@ -44,22 +47,24 @@ async def chat(chat_request: ChatRequest):
     - Ask probing questions about price, quality, and usefulness
     - Never accept immediately without justification
     """
+    try:
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", buyer_prompt),
+            *[("human", message.text) for message in chat_request.memory if message.role == MemoryOwnerEnum.HUMAN],
+            *[("assistant", message.text) for message in chat_request.memory if message.role == MemoryOwnerEnum.AI],
+            ("human", chat_request.current_message),
+        ])
 
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", buyer_prompt),
-        *[("human", message.text) for message in chat_request.memory if message.role == MemoryOwnerEnum.HUMAN],
-        *[("assistant", message.text) for message in chat_request.memory if message.role == MemoryOwnerEnum.AI],
-        ("human", chat_request.current_message),
-    ])
-
-    chain = LLMChain(llm=llm, prompt=prompt)
-    props = {
-        "product" : chat_request.product
-    }
-    result = await chain.ainvoke(props)
-    return {
-        "answer": result["text"]
-    }
+        chain = LLMChain(llm=llm, prompt=prompt)
+        props = {
+            "product" : chat_request.product
+        }
+        result = await chain.ainvoke(props)
+        return {
+            "answer": result["text"]
+        }
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=f"Chat processing failed: {str(error)}")
 
 
 if __name__ == "__main__":
