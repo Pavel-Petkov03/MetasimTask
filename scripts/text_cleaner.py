@@ -56,7 +56,7 @@ def main():
         print("File doesn't exist")
         filename = input("Enter filename: ")
     final_filename = TARGET_INPUT_FOLDER + filename
-    output_filename = input("Enter output filename[output.txt by default if left empty]")
+    output_filename = input("Enter output filename[output.txt by default if left empty]: ")
     if output_filename:
         text_cleaner = TextCleaner(final_filename, output_filename)
     else:
